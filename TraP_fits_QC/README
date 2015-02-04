@@ -1,4 +1,4 @@
-Usage: python TraP_QC_diagnostics.py <database> <username> <password> <host> <port> <databaseType> <dataset_id> <sigma> <plt_freqs> <database_id2>
+Usage: python TraP_fits_QC.py <sigmaClip> <sigmaRej> <f> <frequencies>
 
 Script updated for TraP Release 2 databases. If using TraP Release 1.1 please use older version.
 
