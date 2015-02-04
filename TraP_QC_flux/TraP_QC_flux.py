@@ -4,7 +4,6 @@
 # Author: Antonia Rowlinson
 # E-mail: b.a.rowlinson@uva.nl
 #
-
 import sys
 import tools
 import tkp.utility.coordinates as coords
@@ -24,7 +23,7 @@ from matplotlib.font_manager import FontProperties
 ###################### INITIAL SETUP STEPS ######################
 
 if len(sys.argv) != 10:
-    print 'python TraP_QC_diagnostics.py <database> <username> <password> <host> <port> <databaseType> <dataset_id> <telescope>'
+    print 'python TraP_QC_diagnostics.py <database> <username> <password> <host> <port> <databaseType> <dataset_id> <skymodel> <telescope>'
     exit()
 database = sys.argv[1]
 username = sys.argv[2]
@@ -198,7 +197,9 @@ for i in range(len(unique_frequencies)):
 ax1.legend(unique_frequencies, loc=2, prop=fontP)
 
 ax3.hist([float(x[2])/float(x[4]) for x in source_data],bins=50,histtype='stepfilled', orientation='horizontal')
-ax6.hist([float(x[2])/float(x[10]) for x in source_data if float(x[10])!=-1],bins=50,histtype='stepfilled', orientation='horizontal')
+tmpData=[float(x[2])/float(x[10]) for x in source_data if float(x[10])!=-1]
+if tmpData:
+    ax6.hist(tmpData,bins=50,histtype='stepfilled', orientation='horizontal')
 
 ax1.axhline(y=avg1, linewidth=2, color='k', linestyle='-')
 ax2.axhline(y=avg1, linewidth=2, color='k', linestyle='-')
@@ -232,12 +233,13 @@ ax2.plot(bins,yavg,'r-', linewidth=2)
 
 yvals = [float(x[2])/float(x[10]) for x in source_data if float(x[10])!=-1]
 xvals = [np.log10(float(x[2])) for x in source_data if float(x[10])!=-1]
-bins,yavg,ysig = tools.runningAvg(xvals,yvals)
-ax4.plot(np.power(10.,bins),yavg,'r-', linewidth=2)
+if yvals:
+    bins,yavg,ysig = tools.runningAvg(xvals,yvals)
+    ax4.plot(np.power(10.,bins),yavg,'r-', linewidth=2)
 
-xvals = [float(x[7]) for x in source_data if float(x[10])!=-1]
-bins,yavg,ysig = tools.runningAvg(xvals,yvals)
-ax5.plot(bins,yavg,'r-', linewidth=2)
+    xvals = [float(x[7]) for x in source_data if float(x[10])!=-1]
+    bins,yavg,ysig = tools.runningAvg(xvals,yvals)
+    ax5.plot(bins,yavg,'r-', linewidth=2)
 
 
 
@@ -349,17 +351,18 @@ bins,yavg,ysig = tools.runningAvg(xvals,yvals)
 ax3.plot(bins,yavg,'r-', linewidth=2)
 
 yvals = [float(x[2])/float(x[10]) for x in source_data if float(x[10])!=-1]
-xvals = [float(x[11]) for x in source_data if float(x[10])!=-1]
-bins,yavg,ysig = tools.runningAvg(xvals,yvals)
-ax4.plot(bins,yavg,'r-', linewidth=2)
+if yvals:
+    xvals = [float(x[11]) for x in source_data if float(x[10])!=-1]
+    bins,yavg,ysig = tools.runningAvg(xvals,yvals)
+    ax4.plot(bins,yavg,'r-', linewidth=2)
 
-xvals = [float(x[8]) for x in source_data if float(x[10])!=-1]
-bins,yavg,ysig = tools.runningAvg(xvals,yvals)
-ax5.plot(bins,yavg,'r-', linewidth=2)
+    xvals = [float(x[8]) for x in source_data if float(x[10])!=-1]
+    bins,yavg,ysig = tools.runningAvg(xvals,yvals)
+    ax5.plot(bins,yavg,'r-', linewidth=2)
 
-xvals = [float(x[9]) for x in source_data if float(x[10])!=-1]
-bins,yavg,ysig = tools.runningAvg(xvals,yvals)
-ax6.plot(bins,yavg,'r-', linewidth=2)
+    xvals = [float(x[9]) for x in source_data if float(x[10])!=-1]
+    bins,yavg,ysig = tools.runningAvg(xvals,yvals)
+    ax6.plot(bins,yavg,'r-', linewidth=2)
 
 
     

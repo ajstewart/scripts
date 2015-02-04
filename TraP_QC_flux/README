@@ -1,0 +1,25 @@
+Usage: python TraP_QC_flux.py <database> <username> <password> <host> <port> <databaseType> <dataset_id> <skymodel> <telescope>
+
+Requirements:
+gsm.py, os, glob, sys, numpy, datetime, math, matplotlib, tkp, pylab, pytz
+tools.py
+
+Instructions:
+
+1. Run TraP as usual on your dataset, note the dataset_id number
+2. You are now ready to run this script. Go to ${your_working_folder} and run: 
+    python TraP_QC_flux.py <database> <username> <password> <host> <port> <databaseType> <dataset_id> <skymodel> <telescope>
+
+    <database>        : The name of the TraP database you are using
+    <username>	      : Your username for the database
+    <password>	      : The password for the database
+    <host>	      : The name of the machine hosting the databases
+    <port>	      : The port number for the machine, typically 5432 for postgresql and 52000 for monetdb
+    <databaseType>    : postgresql or monetdb
+    <dataset_id>      : The TraP dataset id
+    <skymodel>	      : For comparison of extracted flux to the sky model flux. "none" = no sky model comparisons, "auto" = use gsm.py to extract the VLSS sky model, <filename> = uses an input csv file with RA(degrees),Dec(degrees),Flux(Jy)
+    <telescope>	      : The name of the telescope being used, currently supports "LOFAR" and "MWA"
+
+   In the working folder, two diagnostic plots are produced which can be used to search for systematic flux uncertainties.
+
+Feedback on this script is welcome, please post comments and issues on github.

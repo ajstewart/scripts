@@ -18,7 +18,7 @@ from dump_image_data_v1 import dump_images
 from tkp.utility.coordinates import julian_date
 from pyrap.quanta import quantity
 from pyrap.measures import measures
-
+import operator
 
 def get_data(database, username, password, host, port, databaseType, dataset_id):
 #
@@ -272,14 +272,18 @@ def extract_sky(vlss_sources,restfrq,frq):
     return srcs_vlss
 
 def source_assoc(srcs_vlss,srcs_pyse,bmaj):
+#    print bmaj
     posdif_old=bmaj*5.*3600.
+#    print posdif_old
     intflx=-1.
     for b in range(len(srcs_vlss)):
         posdif = coords.angsep(float(srcs_pyse[16]),float(srcs_pyse[15]),float(srcs_vlss[b][0][0]),float(srcs_vlss[b][0][1]))
 #        print float(srcs_pyse[16]),float(srcs_pyse[15]),float(srcs_vlss[b][0][0]),float(srcs_vlss[b][0][1]),posdif, posdif_old
+#        exit()
         if posdif < posdif_old:
             posdif_old = posdif
             intflx = float(srcs_vlss[b][1])
+#            break
     return intflx
 
 def find_avg_int_flx_rat(srcs_vlss,srcs_pyse,bmaj):
@@ -307,10 +311,12 @@ def extr_skymodel(skymodel):
     rows = data.readlines()
     data.close()
     srcs=[]
+    srcsTmp=[]
     for y in rows:
         x = y.split(',')
         position=[float(x[0]),float(x[1])]
         srcs.append([position,float(x[2])])
+    srcs=sorted(srcs,key=operator.itemgetter(1),reverse=True)
     return srcs
 
 def make_colours(frequencies):
