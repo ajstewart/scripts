@@ -10,7 +10,8 @@ def extract_data(filename):
             lines=lines.rstrip().replace(" ", "")
             info.append(lines.split(','))
     data.close()
-    return info
+    info2=np.loadtxt(filename, dtype='string', delimiter=",")
+    return info, info2
 
 def get_frequencies(trans_data):
     # identify all the unique observing frequencies in the dataset

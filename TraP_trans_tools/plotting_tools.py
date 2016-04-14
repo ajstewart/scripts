@@ -120,10 +120,26 @@ def create_scatter_hist(data,sigcutx,sigcuty,paramx,paramy,range_x,range_y,datas
         if line[0] not in tmp2:
             tmp2.append(line[0])
     IdTrans=np.sort(tmp2, axis=0)
-
+    
+    #Find potential variable candidates
+    tmp3=[x for x in data if x[1]>sigcutx]
+    tmp4=[]
+    for line in tmp3:
+        if line[0] not in tmp4:
+            tmp4.append(line[0])
+    IdTrans2=np.sort(tmp4, axis=0)
+    
+    #Find potential variable candidates
+    tmp5=[x for x in data if x[2]>sigcuty]
+    tmp6=[]
+    for line in tmp5:
+        if line[0] not in tmp6:
+            tmp6.append(line[0])
+    IdTrans3=np.sort(tmp6, axis=0)
+    
     plt.close()
 
-    return IdTrans
+    return np.array(tmp), np.array(tmp3), np.array(tmp5)
 
 
 def create_diagnostic(trans_data,sigcut_etanu,sigcut_Vnu,frequencies,dataset_id):

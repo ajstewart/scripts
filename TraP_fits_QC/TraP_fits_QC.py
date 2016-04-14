@@ -27,6 +27,8 @@ for filename in glob.glob('*.fits'):
         freqs.append(freq)
 
 thresholds={}
+for n in imageData:
+    print np.log10(n[2])
 
 if allFreqs=='T':
     for frequency in freqs:
@@ -41,6 +43,7 @@ frequency='all'
 TMPdata = np.array([np.log10(n[2]) for n in imageData])
 TMPdata = TMPdata[np.isfinite(TMPdata)]
 noise_avg_log, noise_scatter_log, noise_threshold_log = tools.fit_hist(TMPdata, sigmaRej, r'Observed RMS (mJy)', 'rms', frequency)
+print noise_avg_log
 noise_avg=10.**(noise_avg_log)
 noise_max=10.**(noise_avg_log+noise_scatter_log)-10.**(noise_avg_log)
 noise_min=10.**(noise_avg_log)-10.**(noise_avg_log-noise_scatter_log)

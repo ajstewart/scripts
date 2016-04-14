@@ -115,8 +115,8 @@ def format_data(database, dataset_id, release,host,port, user, pword, lightcurve
     # if no new sources were detected, create an empty list
         transients=[]
     else:
-        transients = generic_tools.extract_data('ds_'+str(dataset_id)+'_transients.csv')
-    sources = generic_tools.extract_data('ds_'+str(dataset_id)+'_sources.csv')
+        transients, transients_null = generic_tools.extract_data('ds_'+str(dataset_id)+'_transients.csv')
+    sources, sources_null = generic_tools.extract_data('ds_'+str(dataset_id)+'_sources.csv')
     frequencies, new_source = read_src_lc(sources, lightcurves)
     trans_data = collate_trans_data(new_source,frequencies,transients)
     output3 = open('ds'+str(dataset_id)+'_trans_data.txt','w')
