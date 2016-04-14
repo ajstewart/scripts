@@ -11,22 +11,67 @@ import tkp.utility.coordinates as coords
 import numpy as np
 import math
 import os
+import ConfigParser
+import optparse
+import getpass
+import socket
 
 ###################### INITIAL SETUP STEPS ######################
 
-if len(sys.argv) != 11:
-    print 'python TraP_QC_diagnostics.py <database> <username> <password> <host> <port> <databaseType> <dataset_id> <sigma> <plt_freqs> <database_id2>'
-    exit()
-database = sys.argv[1]
-username = sys.argv[2]
-password = sys.argv[3]
-host = sys.argv[4]
-port = sys.argv[5]
-databaseType = sys.argv[6]
-dataset_id = str(sys.argv[7])
-sigma = float(sys.argv[8])
-plt_freqs = sys.argv[9]
-dataset_id2 = str(sys.argv[10])
+user=getpass.getuser()
+hostname=socket.gethostname()
+
+usage = "usage: python %prog [options] "
+description="A script that uses TraP outputs analyse the quality of images and outputs the recommended QC settings for TraP. \
+Script updated for TraP Release 2 databases. If using TraP Release 1.1 please use older version."
+vers="2.0"
+
+parser = optparse.OptionParser(usage=usage, version="%prog v{0}".format(vers), description=description)
+parser.add_option("--config", action="store", type="string", dest="config", default="pipeline.cfg", help="Optionally define the pipeline.cfg file to use from your TraP set up to\
+quickly pass database details [default: %default]")
+parser.add_option("-d", "--database", action="store", type="string", dest="database", default=user,help="The name of the TraP database you are using [default: %default]")
+parser.add_option("-u", "--username", action="store", type="string", dest="username", default=user, help="Your username for the database [default: %default]")
+parser.add_option("-p", "--password", action="store", type="string", dest="password", default=user, help="The password for the database [default: %default]")
+parser.add_option("-H", "--host", action="store", type="string", dest="host", default=hostname, help="The name of the machine hosting the databases [default: %default]")
+parser.add_option("-o", "--port", action="store", type="string", dest="port", default="5432", help="The port number for the machine, typically 5432 for postgresql and 52000 for monetdb [default: %default]")
+parser.add_option("-t", "--databasetype", action="store", type="choice", choices=["postgresql", "monetdb"], dest="databasetype", default="postgresql", help="postgresql or monetdb [default: %default]")
+parser.add_option("-i", "--datasetid", action="store", type="string", dest="datasetid", default="1", help="The dataset containing all the images rejected [default: %default]")
+parser.add_option("-s", "--sigma", action="store", type="float", dest="sigma", default=2.0, help="The sigma clipping to be used for the RMS highbound [default: %default]")
+parser.add_option("-f", "--plotfreqs", action="store_true", dest="plotfreqs", default=False, help="Use option to plot all QC plots for individual frequencies [default: %default]")
+parser.add_option("-x", "--datasetid2", action="store", type="string", dest="datasetid2", default="N", help="The dataset containing all the extracted sources for the images\
+ - if you do not have this yet, leave as the default value N [default: %default]")
+
+(options, args) = parser.parse_args()
+
+configfile=options.config
+
+if os.path.isfile(configfile):
+    config = ConfigParser.ConfigParser()
+    config.read(configfile)
+    database = config.get("database", "database")
+    username = config.get("database", "user")
+    password = config.get("database", "password")
+    host = config.get("database", "host")
+    port = config.get("database", "port")
+    databaseType = config.get("database", "engine")
+    ports={"postgresql":"5432", "monetdb":"52000"}
+    if port =="":
+        port=ports[databaseType]
+else:
+    database = options.database
+    username = options.username
+    password = options.password
+    host = options.host
+    port = options.port
+    databaseType = options.databasetype
+
+# if len(sys.argv) != 11:
+#     print 'python TraP_QC_diagnostics.py <database> <username> <password> <host> <port> <databaseType> <dataset_id> <sigma> <plt_freqs> <database_id2>'
+#     exit()
+dataset_id = options.datasetid
+sigma = options.sigma
+plt_freqs = options.plotfreqs
+dataset_id2 = options.datasetid2
 # A-Team positions
 CasA=[350.866417,58.811778]
 CygA=[299.868153,40.733916]
@@ -38,7 +83,19 @@ min_sep=0. # The absolute minimum allowed separation from the A-Team source, set
 
 # Extracting data from the TraP database into a text file
 if not os.path.exists('ds_'+dataset_id+'_images.csv'):
-    tools.get_data(database, username, password, host, port, databaseType, dataset_id, dataset_id2)
+    try:
+        tools.get_data(database, username, password, host, port, databaseType, dataset_id, dataset_id2)
+    except:
+        print "Cannot connect to database with settings:\n"
+        print "database = {0}".format(database)
+        print "username = {0}".format(username)
+        print "password = {0}".format(password)
+        print "host = {0}".format(host)
+        print "port = {0}".format(port)
+        print "database_type = {0}".format(databaseType)
+        print "dataset_id = {0}".format(dataset_id)
+        print "\nPlease check database settings and/or dataset id."
+        sys.exit()
 
 # Extract relevant data from dataset text file
 image_info, frequencies, plt_ratios = tools.extract_data(dataset_id, CasA, CygA, VirA)
@@ -67,7 +124,7 @@ else:
 
 tools.plotfig_scatter(image_info, 7, 4, 'Ellipticity (Bmaj/Bmin)', 'RMS (Jy)', 'ds'+dataset_id+'_theoretical_ellipticity_'+str(freq)+'MHz')
 
-if plt_freqs == 'T':
+if plt_freqs:
     for freq in frequencies:
         # RMS noise properties
         noise_avg_log_tmp, noise_scatter_log_tmp, noise_threshold_log_tmp = tools.fit_hist([np.log10(image_info[n][4]) for n in range(len(image_info)) if image_info[n][3]==freq], sigma, r'Observed RMS (Jy)', 'ds'+dataset_id+'_rms', freq)
@@ -89,7 +146,8 @@ ellipticity_threshold=round(avg_rms2+sigma*rms_rms2,2)
 print 'Average ellipticity: '+str(round(avg_rms2,2))+' +/- '+str(round(rms_rms2,2))
 print '######## Recommended TraP ellipticity threshold: '+str(ellipticity_threshold)
 
-image_info_clip1 = [image_info[n] for n in range(len(image_info)) if image_info[n][6] < ratio_threshold if image_info[n][7] < ellipticity_threshold]
+image_info_clip1 = [image_info[n] for n in range(len(image_info)) if (image_info[n][6] < ratio_threshold) and (image_info[n][7] < ellipticity_threshold)]
+images_rejected_clip1 = ["#Images rejected on basis of {0} sigma RMS ratio cut ({1}) and recommended ellipticity cut ({2})".format(sigma, ratio_threshold, ellipticity_threshold)]+sorted([image_info[n][-4] for n in range(len(image_info)) if image_info[n][6] > ratio_threshold or image_info[n][7] > ellipticity_threshold])
 
 for ateam in ['CasA', 'CygA', 'VirA']:
     if ateam == 'CasA':
@@ -102,11 +160,14 @@ for ateam in ['CasA', 'CygA', 'VirA']:
 print '######## Recommended TraP min seperation from A-Team sources (degrees): '+str(min_sep)
 
 image_info_clip2 = [image_info_clip1[n] for n in range(len(image_info_clip1)) if image_info_clip1[n][8] > min_sep if image_info_clip1[n][9] > min_sep if image_info_clip1[n][10] > min_sep]
+images_rejected_clip2 = ["#Images rejected on basis of recommended distance from A-team sources ({0} deg)".format(min_sep),]+sorted([image_info_clip1[n][-4] for n in range(len(image_info_clip1)) if image_info_clip1[n][8] < min_sep if image_info_clip1[n][9] < min_sep if image_info_clip1[n][10] < min_sep])
 tools.plotfig_scatter(image_info_clip2, 7, 4, 'Ellipticity (Bmaj/Bmin)', 'RMS (Jy)', 'ds'+dataset_id+'_theoretical_ellipticity_allMHz_Final')
 
 print 'Total images: '+str(len(image_info))+' After first clip: '+str(len(image_info_clip1))+' ('+str(int(round(100.*(float(len(image_info_clip1))/float(len(image_info))),0)))+'%) After second clip: '+str(len(image_info_clip2))+' ('+str(int(round(100.*(float(len(image_info_clip2))/float(len(image_info))),0)))+'%)'
 
 np.savetxt("ds"+str(dataset_id)+"_image_info.csv", image_info, fmt='%s', delimiter=",")
+np.savetxt("ds"+str(dataset_id)+"_images_rejected_clip1.txt", images_rejected_clip1, fmt='%s')
+np.savetxt("ds"+str(dataset_id)+"_images_rejected_clip2.txt", images_rejected_clip2, fmt='%s')
 
 ###################### IMAGES AVAILABLE? ######################
 
@@ -149,7 +210,7 @@ freq='all'
 flx_avg_log_tmp, flx_scatter_log_tmp, flx_threshold_log_tmp = tools.fit_hist([x[1] for x in avg_flxrat if x[1]!=0.], 0.0, r'Average (Flux / Corrected Skymodel Flux)', 'ds'+dataset_id+'_flux', freq)
 print 'Average Flux Ratio: '+str(flx_avg_log_tmp)+' +/-'+str(flx_scatter_log_tmp)
 tools.plotfig_scatter([x for x in avg_flxrat if x[1] != 0.], 0, 1, 'RMS (Jy)', 'Average(Flux / Corrected Skymodel Flux)', 'ds'+dataset_id+'_flux_'+str(freq)+'MHz_Final')
-if plt_freqs == 'T':
+if plt_freqs:
     for freq in frequencies:
         tools.plotfig_scatter([x for x in avg_flxrat if x[2] == freq if x[1]!=0.], 0, 1, 'RMS (Jy)', 'Average(Flux / Corrected Skymodel Flux)', 'ds'+dataset_id+'_flux_'+str(freq)+'MHz_Final')
         flx_avg_log_tmp, flx_scatter_log_tmp, flx_threshold_log_tmp = tools.fit_hist([x[1] for x in avg_flxrat if x[1]!=0. if x[2]==freq], 0.0, r'Average (Flux / Corrected Skymodel Flux)', 'ds'+dataset_id+'_flux', freq)
