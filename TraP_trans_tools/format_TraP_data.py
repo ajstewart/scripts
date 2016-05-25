@@ -72,6 +72,7 @@ def collate_trans_data(new_source,frequencies,transients):
                     band.append(new_source[keys][b][0])
                     flux.append(float(new_source[keys][b][5]))
                     flux_err.append(float(new_source[keys][b][6]))
+                    date.append(new_source[keys][b][10])
                     if tmp<int(new_source[keys][b][14]):
                         eta=float(new_source[keys][b][2])
                         V=float(new_source[keys][b][11])
@@ -99,7 +100,7 @@ def collate_trans_data(new_source,frequencies,transients):
                     max_sig=0
                     detect_thresh=0
                 # write out the key parameters for each source at each observing frequency
-                trans_data.append([keys, eta, V, max(flux), max(avg_flux_ratio), freq, len(flux), ra, dec, transType, min_sig, max_sig, detect_thresh])
+                trans_data.append([keys, eta, V, max(flux), max(avg_flux_ratio), freq, len(flux), ra, dec, sorted(date)[0], transType, min_sig, max_sig, detect_thresh])
     print 'Number of transients in sample: '+str(len(trans_data))
     # Return the array of key parameters for each source
     return trans_data
@@ -118,9 +119,10 @@ def format_data(database, dataset_id, release,host,port, user, pword, lightcurve
         transients, transients_null = generic_tools.extract_data('ds_'+str(dataset_id)+'_transients.csv')
     sources, sources_null = generic_tools.extract_data('ds_'+str(dataset_id)+'_sources.csv')
     frequencies, new_source = read_src_lc(sources, lightcurves)
+    # print new_source
     trans_data = collate_trans_data(new_source,frequencies,transients)
     output3 = open('ds'+str(dataset_id)+'_trans_data.txt','w')
-    output3.write('#Runcat_id, eta_nu, V_nu, flux, fluxrat, freq, dpts, RA, Dec, trans_type, max_rms_sigma, min_rms_sigma, detection_threshold  \n')
+    output3.write('#Runcat_id, eta_nu, V_nu, flux, fluxrat, freq, dpts, RA, Dec, date, trans_type, max_rms_sigma, min_rms_sigma, detection_threshold  \n')
     for x in range(len(trans_data)):
         string='%s' % ','.join(str(val) for val in trans_data[x])
         output3.write(string+'\n')

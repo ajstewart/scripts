@@ -34,7 +34,7 @@ transcands=transdata2[transcandmask,:]
 print np.sort(transcands[:,0])
 print "Total number of Transient Candidates (no margin) = {0}".format(len(transcands[:,0]))
 # print np.sort(list(set([int(x[0]) for x in trans_data if x[-4]!='2' if float(x[-2])>=float(x[-1]) if float(x[-3])<float(x[-1])])))
-np.savetxt('transient_candidates.txt', transcands, fmt='%s', delimiter=',', header='Runcat_id, eta_nu, V_nu, flux, fluxrat, freq, dpts, RA, Dec, trans_type, max_rms_sigma, min_rms_sigma, detection_threshold')
+np.savetxt('transient_candidates.txt', transcands, fmt='%s', delimiter=',', header='Runcat_id, eta_nu, V_nu, flux, fluxrat, freq, dpts, RA, Dec, date, trans_type, max_rms_sigma, min_rms_sigma, detection_threshold')
 
 print 'Identified Transients (no margin)'
 transmask=(transdata2[:,-4]!='2') & (transdata2[:,-3].astype(float)>=transdata2[:,-1].astype(float))
@@ -42,7 +42,7 @@ trans=transdata2[transmask,:]
 print np.sort(trans[:,0])
 print "Total number of Transients (no margin) = {0}".format(len(trans[:,0]))
 # print np.sort(list(set([int(x[0]) for x in trans_data if x[-4]!='2' if float(x[-3])>=float(x[-1])])))
-np.savetxt('transients.txt', trans, fmt='%s', delimiter=',', header='Runcat_id, eta_nu, V_nu, flux, fluxrat, freq, dpts, RA, Dec, trans_type, max_rms_sigma, min_rms_sigma, detection_threshold')
+np.savetxt('transients.txt', trans, fmt='%s', delimiter=',', header='Runcat_id, eta_nu, V_nu, flux, fluxrat, freq, dpts, RA, Dec, date, trans_type, max_rms_sigma, min_rms_sigma, detection_threshold')
 
 # Find the thresholds for a given sigma (in log space)
 sigcutx,paramx,range_x = generic_tools.get_sigcut([a[1] for a in data],sigma1)
@@ -70,7 +70,7 @@ else:
     variablearray=[]
     print variablearray
 print "Total number of variables = {0}".format(len(variablearray))
-np.savetxt('variables.txt', variablearray, fmt='%s', delimiter=',', header='Runcat_id, eta_nu, V_nu, flux, fluxrat, freq, dpts, RA, Dec, trans_type, max_rms_sigma, min_rms_sigma, detection_threshold')
+np.savetxt('variables.txt', variablearray, fmt='%s', delimiter=',', header='Runcat_id, eta_nu, V_nu, flux, fluxrat, freq, dpts, RA, Dec, date, trans_type, max_rms_sigma, min_rms_sigma, detection_threshold')
 # np.savetxt('variables.txt', variablearray[variablearray[:,0].argsort()], fmt='%s', delimiter=',', header='Runcat_id, eta_nu, V_nu, flux, fluxrat, freq, dpts, RA, Dec, trans_type, max_rms_sigma, min_rms_sigma, detection_threshold')
 # f=open('variables.txt', 'w')
 # for i in IdTrans:
@@ -86,7 +86,7 @@ else:
     variableetaarray=[]
     print variableetaarray
 print "Total number of variable candidates (eta) = {0}".format(len(variableetaarray[:,0]))
-np.savetxt('variables_eta.txt', variableetaarray[variableetaarray[:,0].argsort()], fmt='%s', delimiter=',', header='Runcat_id, eta_nu, V_nu, flux, fluxrat, freq, dpts, RA, Dec, trans_type, max_rms_sigma, min_rms_sigma, detection_threshold')
+np.savetxt('variables_eta.txt', variableetaarray[variableetaarray[:,0].argsort()], fmt='%s', delimiter=',', header='Runcat_id, eta_nu, V_nu, flux, fluxrat, freq, dpts, RA, Dec, date, trans_type, max_rms_sigma, min_rms_sigma, detection_threshold')
 # print np.sort(list(set(IdTrans2)))
 # f=open('variables_eta.txt', 'w')
 # for i in IdTrans2:
@@ -102,7 +102,7 @@ else:
     variableVarray=[]
     print variableVarray
 print "Total number of variable candidates (V) = {0}".format(len(variableVarray[:,0]))
-np.savetxt('variables_V.txt', variableVarray[variableVarray[:,0].argsort()], fmt='%s', delimiter=',', header='Runcat_id, eta_nu, V_nu, flux, fluxrat, freq, dpts, RA, Dec, trans_type, max_rms_sigma, min_rms_sigma, detection_threshold')
+np.savetxt('variables_V.txt', variableVarray[variableVarray[:,0].argsort()], fmt='%s', delimiter=',', header='Runcat_id, eta_nu, V_nu, flux, fluxrat, freq, dpts, date, RA, Dec, trans_type, max_rms_sigma, min_rms_sigma, detection_threshold')
 # print np.sort(list(set(IdTrans3)))
 # f=open('variables_V.txt', 'w')
 # for i in IdTrans3:

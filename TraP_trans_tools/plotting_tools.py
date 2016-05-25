@@ -98,7 +98,7 @@ def create_scatter_hist(data,sigcutx,sigcuty,paramx,paramy,range_x,range_y,datas
     xmin=int(min([data[n][1] for n in range(len(data))])-1)
     xmax=int(max([data[n][1] for n in range(len(data))]))+1
     ymin=int(min([data[n][2] for n in range(len(data))])-1)
-    ymax=int(max([data[n][2] for n in range(len(data))]))+1
+    ymax=int(max([data[n][2] for n in range(len(data))]))+2
     xvals=range(xmin,xmax)
     xtxts=[r'$10^{'+str(a)+'}$' for a in xvals]
     yvals=range(ymin,ymax)
@@ -111,7 +111,7 @@ def create_scatter_hist(data,sigcutx,sigcuty,paramx,paramy,range_x,range_y,datas
     axScatter.set_yticklabels(ytxts, fontsize=20)
     axHistx.set_xlim( axScatter.get_xlim() )
     axHisty.set_ylim( axScatter.get_ylim() )
-    plt.savefig('ds'+str(dataset_id)+'_scatter_hist.png')
+    plt.savefig('ds'+str(dataset_id)+'_scatter_hist.pdf')
 
     # find all the variable candidates
     tmp=[x for x in data if x[1]>sigcutx if x[2]>sigcuty]
@@ -239,7 +239,7 @@ def create_diagnostic(trans_data,sigcut_etanu,sigcut_Vnu,frequencies,dataset_id)
     ax4.yaxis.set_major_formatter(nullfmt)
     ax2.xaxis.set_major_formatter(nullfmt)
     ax2.yaxis.set_major_formatter(nullfmt)
-    plt.savefig('ds'+str(dataset_id)+'_diagnostic_plots.png')
+    plt.savefig('ds'+str(dataset_id)+'_diagnostic_plots.pdf')
     plt.close()
 
     return
