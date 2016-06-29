@@ -38,6 +38,7 @@ def dump_trans(dbname, dataset_id, engine, host, port, user, pword):
             ,im.tau_time
             ,ex.f_int
             ,ex.f_int_err
+            ,ex.det_sigma
             ,ax.xtrsrc
             ,ex.extract_type
             ,rc.id as runcatid
