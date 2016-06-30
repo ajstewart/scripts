@@ -75,12 +75,14 @@ def create_scatter_hist(data,sigcutx,sigcuty,paramx,paramy,range_x,range_y,datas
     axHisty.hist(y, bins=binsy, normed=1, histtype='stepfilled', orientation='horizontal', color='b')
     axScatter.legend(freq_labels,loc=4, prop=fontP)
 
-    # Plotting lines representing thresholds (unless no thresholds)
+    # Plotting lines representing thresholds (unless no thresholds) and labelling sections
     if sigcutx != 0 or sigcuty != 0:
         axHistx.axvline(x=sigcutx, linewidth=2, color='k', linestyle='--')
         axHisty.axhline(y=sigcuty, linewidth=2, color='k', linestyle='--')
         axScatter.axhline(y=sigcuty, linewidth=2, color='k', linestyle='--')
         axScatter.axvline(x=sigcutx, linewidth=2, color='k', linestyle='--')
+        axScatter.text(0.05, 0.95, r"$V_\nu$ candidates", transform=axScatter.transAxes, size='18')
+        axScatter.text(0.55, 0.49, r"$\eta_\nu$ candidates", transform=axScatter.transAxes, size='18')
 
     # Plotting the Gaussian fits
     fit=norm.pdf(range_x,loc=paramx[0],scale=paramx[1])
